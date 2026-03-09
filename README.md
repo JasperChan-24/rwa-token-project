@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏢 RWA Yield Protocol: On-Chain Real Estate Tokenization
 
-## Getting Started
+[![Live Demo](https://img.shields.io/badge/demo-live-green)](你的Vercel链接)
+[![Blockchain](https://img.shields.io/badge/Network-Sepolia_Testnet-blue)](https://sepolia.etherscan.io/)
 
-First, run the development server:
+### 🌟 Project Overview
+This is a full-stack Decentralized Finance (DeFi) application designed for Real World Asset (RWA) tokenization. It simulates the process of fractionalizing real estate assets into ERC-20 compliant tokens (PRES), allowing holders to earn rental income distributed directly on the Ethereum blockchain.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+<img width="1302" height="852" alt="截屏2026-03-10 01 05 52" src="https://github.com/user-attachments/assets/20a84a85-a21c-4551-8152-4645f6e53e6f" />
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🚀 Key Technical Highlights
+* **Scalable Dividend Algorithm ($O(1)$ Complexity):** Implemented a high-efficiency dividend distribution logic that prevents gas spikes. Unlike traditional loops, this algorithm ensures gas costs remain constant regardless of the number of token holders.
+* **Oracle Integration:** Integrated **Chainlink Price Feeds** to fetch real-time USD valuation for underlying assets, ensuring transparency between physical asset value and on-chain representation.
+* **Web3 Full-Stack Architecture:** * **Smart Contracts:** Solidity, Hardhat, OpenZeppelin.
+    * **Frontend:** Next.js, Tailwind CSS, Wagmi/Viem (for seamless wallet interaction).
+    * **Deployment:** Smart contracts deployed on **Sepolia Testnet**; Frontend hosted on **Vercel**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🛠️ Tech Stack
+- **Smart Contract:** Solidity (^0.8.24)
+- **Development Framework:** Hardhat
+- **Frontend Framework:** Next.js 14 (App Router)
+- **Web3 Library:** Wagmi & Viem
+- **Oracle:** Chainlink Price Feeds (ETH/USD)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📈 Future Roadmap
+- [ ] **Chainlink Automation:** Implementing decentralized keepers to automate monthly rent distribution.
+- [ ] **Secondary Market:** Building an internal OTC desk for token trading.
+- [ ] **Governance:** Introducing a DAO voting mechanism for asset management.
 
-## Learn More
+### 📦 Installation & Local Development
+1. Clone the repo: `git clone https://github.com/JasperChan-24/rwa-token-project`
+2. Install dependencies: `npm install`
+3. Start local node: `npx hardhat node`
+4. Run development server: `npm run dev`
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Developed by a Financial Mathematics student at XJTLU, exploring the intersection of Quantitative Finance and Blockchain Technology.
