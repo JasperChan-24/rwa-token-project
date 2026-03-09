@@ -48,7 +48,7 @@ export default function Home() {
     address: CONTRACT_ADDRESS, abi: ABI, functionName: 'claimableYield', args: address ? [address] : undefined, query: { refetchInterval: 2000 }
   });
 
-  const handleDeposit = () => writeContract({ address: CONTRACT_ADDRESS, abi: ABI, functionName: 'depositYield', value: parseEther('10') });
+  const handleDeposit = () => writeContract({ address: CONTRACT_ADDRESS, abi: ABI, functionName: 'depositYield', value: parseEther('0.01') });
   const handleClaim = () => writeContract({ address: CONTRACT_ADDRESS, abi: ABI, functionName: 'claimYield' });
 
   const handleTransfer = () => {
