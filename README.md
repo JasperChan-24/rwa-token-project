@@ -124,7 +124,7 @@ npm audit
 - `test` 包含 O(1) 分红、转账修正、权限、KYC、重入、舍入、gas scaling、暂停、估值和 Oracle staleness 场景；gas scaling 是测试断言，不是对任意网络 gas 价格的承诺。
 - `check:sepolia` 从已提交 manifest 核验部署/初始化交易、runtime bytecode、供应、管理员、角色、Oracle、估值与 Sourcify exact match；需要 `SEPOLIA_RPC_URL`。
 - `coverage` 报告测试覆盖路径；高覆盖率不等于安全审计。
-- `lint`、`typecheck` 和 `build` 分别检查静态规则、TypeScript 类型与生产构建。
+- `lint`、`typecheck` 和 `build` 分别检查静态规则、完整仓库 TypeScript 类型与生产构建。`next build` 使用 `tsconfig.next.json`，只检查可部署前端；Hardhat 测试和部署脚本仍由完整 `typecheck` 在 `compile` 生成 artifacts 后独立检查，因此 Vercel 不依赖未提交的本地 Hardhat artifacts。
 - `npm audit` 检查 npm 已知漏洞数据库。它不分析 Solidity、协议经济模型、链下法律安排或尚未公开的漏洞，也不能替代人工依赖审查与合约审计。
 
 2026-07-18 对当前 lockfile 的复核结果是：`npm audit --omit=dev` 为 **0**；完整 `npm audit` 为 **14 个（7 low、7 high）**。高等级告警来自开发期 Hardhat 工具链中的 `hardhat -> adm-zip` 和 `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic`，不进入 Next.js 生产依赖或浏览器 bundle。当前最新 Hardhat 仍依赖受影响的 `adm-zip` 范围，不能通过盲目升级或隐藏完整审计结果来宣称已经修复；仓库在 [`SECURITY.md`](SECURITY.md) 中记录临时控制、上游状态和复核要求，并用 `npm audit --omit=dev` 作为生产依赖的硬性 CI 门。告警会随 advisory 数据库和 lockfile 变化；发布证据仍应保存当次命令输出、lockfile 和 commit SHA，不能因为 `next build` 成功就忽略 lint、测试或 audit 失败。
