@@ -2,28 +2,69 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "compile": "hardhat build",
+    "postcompile": "node scripts/export-abi.mjs",
+    "export:abi": "node scripts/export-abi.mjs",
+    "preexport:verification": "hardhat build --build-profile production",
+    "export:verification": "node scripts/export-verification-input.mjs",
+    "test": "hardhat test",
+    "coverage": "hardhat test --coverage",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia --build-profile production",
+    "check:sepolia": "tsx scripts/check-deployment.ts",
+    "verify:deployment": "hardhat run scripts/verify-deployment.ts --network sepolia --build-profile production",
+    "verify:sepolia": "hardhat verify --network sepolia --build-profile production"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.21",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "viem": "^2.47.0",
-    "wagmi": "^3.5.0"
+    "@openzeppelin/contracts": "5.6.1",
+    "@tanstack/react-query": "5.101.2",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "viem": "2.55.0",
+    "wagmi": "3.7.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@nomicfoundation/hardhat-network-helpers": "3.0.11",
+    "@nomicfoundation/hardhat-node-test-runner": "3.0.17",
+    "@nomicfoundation/hardhat-verify": "3.0.21",
+    "@nomicfoundation/hardhat-viem": "3.0.9",
+    "@nomicfoundation/hardhat-viem-assertions": "3.1.2",
+    "@tailwindcss/postcss": "4.3.2",
+    "@types/node": "22.19.15",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "dotenv": "17.3.1",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.10",
+    "hardhat": "3.9.1",
+    "tailwindcss": "4.3.2",
+    "tsx": "4.23.1",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "flatted": "3.4.2",
+    "picomatch@4.0.3": "4.0.5",
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.16"
+    },
+    "minimatch@10.2.4": {
+      "brace-expansion": "5.0.7"
+    },
+    "@actions/http-client": {
+      "undici": "6.27.0"
+    },
+    "next": {
+      "postcss": "8.5.19"
+    }
   }
 }
