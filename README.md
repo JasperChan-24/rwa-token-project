@@ -20,7 +20,7 @@
 <!-- DEPLOYMENT_SOURCIFY_URL -->
 - Sourcify verification: [exact match](https://repo.sourcify.dev/11155111/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3) ([API evidence](https://sourcify.dev/server/v2/contract/11155111/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3))
 
-现有 [Vercel 地址](https://rwa-token-project.vercel.app) 仍托管早期提交，尚未与本页记录的 Sepolia 合约和生成 ABI 对齐，因此不能作为本次 release 的验证证据。本次 release 合并并完成生产部署后，应以部署 commit SHA 和 Vercel deployment 记录为准。前端默认连接上述 Sepolia 部署，也可用 `NEXT_PUBLIC_PROPERTY_TOKEN_ADDRESS` 覆盖；钱包不在 Sepolia 或地址无效时会禁用链上写操作。
+公开前端固定入口为 [rwa-token-project.vercel.app](https://rwa-token-project.vercel.app)，Vercel Production 环境跟随 `main`。每次发布都必须核对 Vercel Deployment 的 Source commit 与对应的 `main` 合并提交一致；Preview URL 只作为合并前验证证据。前端默认连接上述 Sepolia 部署，也可用 `NEXT_PUBLIC_PROPERTY_TOKEN_ADDRESS` 覆盖；钱包不在 Sepolia 或地址无效时会禁用链上写操作。
 
 ## 功能与边界
 
