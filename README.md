@@ -7,7 +7,7 @@
 
 ## 当前部署状态
 
-以下是本仓库当前 Sepolia 演示部署的公开证据。Sourcify 已对创建与运行时 bytecode 给出 `exact_match`；Etherscan 源码验证仍待 API key 或人工 CAPTCHA 流程完成，因此明确标为待验证。
+以下是本仓库当前 Sepolia 演示部署的公开证据。Sourcify 已对创建与运行时 bytecode 给出 `exact_match`；Etherscan 也已使用 Solidity Standard JSON Input 完成源码验证并显示 `Exact Match`。
 
 <!-- DEPLOYMENT_NETWORK -->
 - Network: Sepolia (`chainId: 11155111`)
@@ -16,7 +16,7 @@
 <!-- DEPLOYMENT_TRANSACTION_URL -->
 - Deployment transaction: [`0xa7252d045fd341b30d8e9b37be6887a39d2ed1421fae0a23adc676ed8c3b12a9`](https://sepolia.etherscan.io/tx/0xa7252d045fd341b30d8e9b37be6887a39d2ed1421fae0a23adc676ed8c3b12a9)
 <!-- DEPLOYMENT_ETHERSCAN_URL -->
-- Etherscan source verification: `PENDING_VERIFICATION` ([unverified address page](https://sepolia.etherscan.io/address/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3#code))
+- Etherscan source verification: [verified exact match](https://sepolia.etherscan.io/address/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3#code) (`v0.8.28+commit.7893614a`, optimizer enabled, 200 runs)
 <!-- DEPLOYMENT_SOURCIFY_URL -->
 - Sourcify verification: [exact match](https://repo.sourcify.dev/11155111/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3) ([API evidence](https://sourcify.dev/server/v2/contract/11155111/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3))
 

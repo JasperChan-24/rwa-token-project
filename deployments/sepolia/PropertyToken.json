@@ -36,7 +36,7 @@
     "sourcifyApi": "https://sourcify.dev/server/v2/contract/11155111/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3"
   },
   "verification": {
-    "etherscan": false,
+    "etherscan": true,
     "sourcify": true
   },
   "abi": [
