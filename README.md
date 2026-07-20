@@ -256,7 +256,7 @@ npm audit
 - `lint`、`typecheck` 和 `build` 分别检查静态规则、完整仓库 TypeScript 类型与生产构建。`next build` 使用 `tsconfig.next.json`，只检查可部署前端；Hardhat 测试和部署脚本仍由完整 `typecheck` 在 `compile` 生成 artifacts 后独立检查，因此 Vercel 不依赖未提交的本地 Hardhat artifacts。
 - `npm audit` 检查 npm 已知漏洞数据库。它不分析 Solidity、协议经济模型、链下法律安排或尚未公开的漏洞，也不能替代人工依赖审查与合约审计。
 
-2026-07-18 对当前 lockfile 的复核结果是：`npm audit --omit=dev` 为 **0**；完整 `npm audit` 为 **14 个（7 low、7 high）**。高等级告警来自开发期 Hardhat 工具链中的 `hardhat -> adm-zip` 和 `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic`，不进入 Next.js 生产依赖或浏览器 bundle。当前最新 Hardhat 仍依赖受影响的 `adm-zip` 范围，不能通过盲目升级或隐藏完整审计结果来宣称已经修复；仓库在 [`SECURITY.md`](SECURITY.md) 中记录临时控制、上游状态和复核要求，并用 `npm audit --omit=dev` 作为生产依赖的硬性 CI 门。告警会随 advisory 数据库和 lockfile 变化；发布证据仍应保存当次命令输出、lockfile 和 commit SHA，不能因为 `next build` 成功就忽略 lint、测试或 audit 失败。
+2026-07-20 对当前 lockfile 的复核结果是：`npm audit --omit=dev` 为 **0**；完整 `npm audit` 为 **8 个 low、0 个 high**，这八个传递条目都源自 `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic` 的同一条、暂时没有修复版本的 advisory，且不进入 Next.js 生产依赖或浏览器 bundle。此前 `hardhat -> adm-zip` 的 high finding 已通过 npm `overrides` 锁定到修复版 0.6.0，并由完整的编译、验证导出、测试和构建流程检查兼容性。仓库在 [`SECURITY.md`](SECURITY.md) 中记录临时控制和复核要求，并用 `npm audit --omit=dev` 作为生产依赖的硬性 CI 门。告警会随 advisory 数据库和 lockfile 变化；发布证据仍应保存当次命令输出、lockfile 和 commit SHA，不能因为 `next build` 成功就忽略 lint、测试或 audit 失败。
 
 ## O(1) magnified dividend-per-share
 

@@ -30,9 +30,10 @@ Hardhat compiler and test commands run sequentially because their shared compile
 
 ## Known development-tool advisories
 
-As of 2026-07-20, `npm audit --omit=dev` reports zero production vulnerabilities. The full development tree reports 14 advisories (7 low and 7 high):
+As of 2026-07-20, `npm audit --omit=dev` reports zero production vulnerabilities. The full development tree reports eight low-severity entries, all propagated from one unpatched advisory:
 
-- [`GHSA-xcpc-8h2w-3j85`](https://github.com/advisories/GHSA-xcpc-8h2w-3j85) through `hardhat -> adm-zip`. The current Hardhat release line still declares `adm-zip ^0.4.16`; npm reports no compatible fix through Hardhat.
-- [`GHSA-848j-6mx2-7j84`](https://github.com/advisories/GHSA-848j-6mx2-7j84) through `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic`.
+- [`GHSA-848j-6mx2-7j84`](https://github.com/advisories/GHSA-848j-6mx2-7j84) through `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic`. The advisory does not currently list a patched `elliptic` release.
 
-These packages are used only for trusted local/CI build and verification inputs and are not shipped in the static frontend. This separation reduces exposure but does not make the advisories disappear. Dependabot checks weekly; maintainers must reassess the advisories before each release, avoid processing untrusted archives or verification inputs, and remove this exception as soon as compatible upstream fixes exist.
+The earlier high-severity [`GHSA-xcpc-8h2w-3j85`](https://github.com/advisories/GHSA-xcpc-8h2w-3j85) finding is removed by locking Hardhat's transitive `adm-zip` dependency to patched version 0.6.0 through npm `overrides`. Compile, verification export, contract tests, coverage, type checking, and the production build validate that compatibility override before release.
+
+The remaining affected package is used only for trusted local/CI verification inputs and is not shipped in the static frontend. This separation reduces exposure but does not make the advisory disappear. Dependabot checks weekly; maintainers must reassess it before each release, avoid untrusted verification inputs, and remove the exception as soon as a compatible upstream fix exists.
