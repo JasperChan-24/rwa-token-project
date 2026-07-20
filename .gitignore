@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/output/playwright
+/playwright-report
+/.playwright-cli
 
 # hardhat
 /artifacts

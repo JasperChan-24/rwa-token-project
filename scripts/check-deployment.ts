@@ -71,11 +71,28 @@ const read = <T>(functionName: string, args?: readonly unknown[]) =>
     args,
   }) as Promise<T>;
 
-const [name, symbol, totalSupply, defaultAdmin, oracle, maxAge, valuation, paused] =
+const [
+  name,
+  symbol,
+  totalSupply,
+  deployerBalance,
+  totalYieldDeposited,
+  totalYieldClaimed,
+  contractEthBalance,
+  defaultAdmin,
+  oracle,
+  maxAge,
+  valuation,
+  paused,
+] =
   await Promise.all([
     read<string>("name"),
     read<string>("symbol"),
     read<bigint>("totalSupply"),
+    read<bigint>("balanceOf", [manifest.deployer]),
+    read<bigint>("totalYieldDeposited"),
+    read<bigint>("totalYieldClaimed"),
+    client.getBalance({ address: manifest.address }),
     read<Address>("defaultAdmin"),
     read<Address>("ethUsdOracle"),
     read<bigint>("oracleMaxAge"),
@@ -115,6 +132,10 @@ console.log(
       name,
       symbol,
       totalSupply: totalSupply.toString(),
+      deployerBalance: deployerBalance.toString(),
+      totalYieldDeposited: totalYieldDeposited.toString(),
+      totalYieldClaimed: totalYieldClaimed.toString(),
+      contractEthBalance: contractEthBalance.toString(),
       defaultAdmin,
       oracle,
       oracleMaxAgeSeconds: maxAge.toString(),

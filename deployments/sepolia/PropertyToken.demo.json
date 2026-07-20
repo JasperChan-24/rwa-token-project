@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "network": "sepolia",
+  "chainId": 11155111,
+  "contract": "0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3",
+  "executedAt": "2026-07-20T01:51:17.453Z",
+  "purpose": "Bounded Sepolia demonstration of allowlist, transfer, O(1) yield deposit, post-deposit transfer correction, pull claims, and cleanup.",
+  "privacy": "Only public addresses and transaction hashes are recorded. No private key is persisted or printed.",
+  "accounts": {
+    "deployer": "0xDE3662e115c9E5318247C7f42393B3B2BbD3dd99",
+    "participant": "0x4e11DE57f3cE4A71C1760E07802a6eE839dAd22f"
+  },
+  "amounts": {
+    "firstTransferPres": "1000",
+    "secondTransferPres": "500",
+    "depositedYieldEth": "0.001",
+    "deployerClaimEth": "0.000899999999999999",
+    "participantClaimEth": "0.000099999999999999"
+  },
+  "invariants": {
+    "claimableUnaffectedByPostDepositTransfer": true,
+    "finalDeployerPres": "10000",
+    "finalParticipantPres": "0",
+    "finalParticipantAllowlisted": false,
+    "totalYieldDepositedWei": "1000000000000000",
+    "totalYieldClaimedWei": "999999999999998",
+    "unclaimedRoundingDustWei": "2",
+    "participantRemainingSepoliaEth": "0.000001845884775"
+  },
+  "transactions": [
+    {
+      "step": "allowlist participant",
+      "hash": "0x4156d6dd7d2cc1a1e22deca1ad211276b09e628d183bb229f47e3f8549fc281f",
+      "blockNumber": "11309647",
+      "url": "https://sepolia.etherscan.io/tx/0x4156d6dd7d2cc1a1e22deca1ad211276b09e628d183bb229f47e3f8549fc281f",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x4156d6dd7d2cc1a1e22deca1ad211276b09e628d183bb229f47e3f8549fc281f"
+    },
+    {
+      "step": "fund participant gas",
+      "hash": "0x98461e53328e33f8b6a40697adf421f02e9c8bf15ac0642dd266ce57273820ab",
+      "blockNumber": "11309648",
+      "url": "https://sepolia.etherscan.io/tx/0x98461e53328e33f8b6a40697adf421f02e9c8bf15ac0642dd266ce57273820ab",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x98461e53328e33f8b6a40697adf421f02e9c8bf15ac0642dd266ce57273820ab"
+    },
+    {
+      "step": "transfer 1000 PRES before deposit",
+      "hash": "0xebd0f0763103c68877e752676ebb0328361d7aaf6594b3aa31175bca83c9d318",
+      "blockNumber": "11309649",
+      "url": "https://sepolia.etherscan.io/tx/0xebd0f0763103c68877e752676ebb0328361d7aaf6594b3aa31175bca83c9d318",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0xebd0f0763103c68877e752676ebb0328361d7aaf6594b3aa31175bca83c9d318"
+    },
+    {
+      "step": "deposit 0.001 ETH yield",
+      "hash": "0xa1d7c8a20666a5d457fa895d9337c6c298160a4b7d89208251bbe68ae5310016",
+      "blockNumber": "11309650",
+      "url": "https://sepolia.etherscan.io/tx/0xa1d7c8a20666a5d457fa895d9337c6c298160a4b7d89208251bbe68ae5310016",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0xa1d7c8a20666a5d457fa895d9337c6c298160a4b7d89208251bbe68ae5310016"
+    },
+    {
+      "step": "transfer 500 PRES after deposit",
+      "hash": "0x39cd2bc519fee16b6e207f04f8d4b9fd5c569cf8b42a15c7fc63f1c227131f99",
+      "blockNumber": "11309652",
+      "url": "https://sepolia.etherscan.io/tx/0x39cd2bc519fee16b6e207f04f8d4b9fd5c569cf8b42a15c7fc63f1c227131f99",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x39cd2bc519fee16b6e207f04f8d4b9fd5c569cf8b42a15c7fc63f1c227131f99"
+    },
+    {
+      "step": "participant claims historical yield",
+      "hash": "0x9fcd8423a16f5c29fa1e4a08a4c96ff9e431147313d602affcf7d42c6a67fe51",
+      "blockNumber": "11309653",
+      "url": "https://sepolia.etherscan.io/tx/0x9fcd8423a16f5c29fa1e4a08a4c96ff9e431147313d602affcf7d42c6a67fe51",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x9fcd8423a16f5c29fa1e4a08a4c96ff9e431147313d602affcf7d42c6a67fe51"
+    },
+    {
+      "step": "deployer claims remaining yield",
+      "hash": "0x10904952edbc98059de4ea4515ee1a10adde36756cfc449f32014964623ceb4f",
+      "blockNumber": "11309655",
+      "url": "https://sepolia.etherscan.io/tx/0x10904952edbc98059de4ea4515ee1a10adde36756cfc449f32014964623ceb4f",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x10904952edbc98059de4ea4515ee1a10adde36756cfc449f32014964623ceb4f"
+    },
+    {
+      "step": "return 1500 PRES to deployer",
+      "hash": "0x91406e2338e8589662d14279ead59a690e6eadc15047383544f67e10f08a7f59",
+      "blockNumber": "11309656",
+      "url": "https://sepolia.etherscan.io/tx/0x91406e2338e8589662d14279ead59a690e6eadc15047383544f67e10f08a7f59",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x91406e2338e8589662d14279ead59a690e6eadc15047383544f67e10f08a7f59"
+    },
+    {
+      "step": "remove participant allowlist flag",
+      "hash": "0x65a066c7f19cf50eb0e0778a55d31cd9533b2867cf6a5dc7d8cff49139976432",
+      "blockNumber": "11309657",
+      "url": "https://sepolia.etherscan.io/tx/0x65a066c7f19cf50eb0e0778a55d31cd9533b2867cf6a5dc7d8cff49139976432",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x65a066c7f19cf50eb0e0778a55d31cd9533b2867cf6a5dc7d8cff49139976432"
+    },
+    {
+      "step": "return participant Sepolia ETH",
+      "hash": "0x4ba73a56231c46ceeca469e6a1f0b66a49b6b9625a01355efe39d7bddc10e3a6",
+      "blockNumber": "11309659",
+      "url": "https://sepolia.etherscan.io/tx/0x4ba73a56231c46ceeca469e6a1f0b66a49b6b9625a01355efe39d7bddc10e3a6",
+      "blockscoutUrl": "https://eth-sepolia.blockscout.com/tx/0x4ba73a56231c46ceeca469e6a1f0b66a49b6b9625a01355efe39d7bddc10e3a6"
+    }
+  ]
+}

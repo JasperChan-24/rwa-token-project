@@ -1,6 +1,125 @@
-# PropertyToken RWA Demo
+# PropertyToken — Auditable RWA Dividend Demo
 
-一个可编译、可测试、可部署到 Sepolia 的房地产 RWA 技术演示。仓库同时包含 Solidity 合约、Hardhat 工程、Next.js 前端和围绕分红、权限、KYC、Oracle 与安全边界的自动化测试。
+[![CI](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/ci.yml/badge.svg)](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/ci.yml)
+[![Solidity coverage](https://img.shields.io/badge/Solidity%20coverage-94.94%25-brightgreen)](#verification-and-reproducibility)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Network: Sepolia](https://img.shields.io/badge/network-Sepolia-6f4cff)](https://sepolia.etherscan.io/address/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3)
+
+PropertyToken is an evidence-first Sepolia engineering demo for distributing ETH
+yield to ERC-20 holders without iterating over the holder set. It combines a
+fixed-supply Solidity contract, O(1) magnified dividend accounting, transfer-side
+entitlement corrections, a Hardhat verification pipeline, and a public Next.js
+dashboard.
+
+**Problem.** A naive dividend distributor loops over every holder, making deposits
+progressively more expensive and eventually impractical. It also risks assigning
+past yield to wallets that buy tokens only after a distribution.
+
+**Contribution.** This project records a cumulative dividend-per-share value and
+updates signed corrections on every transfer. Deposits, entitlement reads, and
+claims therefore use a fixed amount of contract work with respect to holder count,
+while historical yield remains with the wallet that held the tokens at deposit time.
+
+> [!IMPORTANT]
+> This is a technical testnet demo, not a tokenized-property offering. The current
+> deployment performs no identity verification, KYC, AML, accreditation, sanctions,
+> wallet-ownership, custody, SPV, banking, appraisal, or market-making process. Its
+> on-chain mapping is only a manually set demo allowlist flag, and its transfer form
+> is only a direct ERC-20 transfer between allowed wallets.
+
+[**Live demo**](https://rwa-token-project.vercel.app) ·
+[**Etherscan exact match**](https://sepolia.etherscan.io/address/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3#code) ·
+[**Sourcify exact match**](https://repo.sourcify.dev/11155111/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3) ·
+[**CI**](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/ci.yml) ·
+[**v1.0.0 Sepolia demo**](https://github.com/JasperChan-24/rwa-token-project/releases/tag/v1.0.0-sepolia-demo)
+
+## Evidence at a glance
+
+| Evidence | Public result |
+| --- | --- |
+| Contract | `PropertyToken.sol`, Solidity `0.8.28`, optimized with 200 runs |
+| Automated contract tests | **14 passing**: accounting, transfer corrections, permissions, allowlist, pause, reentrancy, rounding, oracle freshness, valuation provenance, and gas scaling |
+| Solidity coverage | **94.94%** contract coverage; high coverage is not an audit |
+| Source verification | Etherscan **Exact Match** and Sourcify creation/runtime **exact_match** |
+| Public yield lifecycle | Allowlist → transfer → `depositYield` → post-deposit transfer → two pull claims → cleanup, with every transaction linked below |
+| Live system | Next.js dashboard on Vercel reading the verified Sepolia deployment |
+| Reproducibility | Locked dependencies, generated ABI drift check, production build, frontend copy tests, Playwright E2E, and CI |
+
+## Public Sepolia yield lifecycle
+
+On 2026-07-20, a bounded `0.001` Sepolia ETH demonstration exercised the
+contract's core accounting loop. A recoverable demo participant held `1,000 PRES`
+at deposit time, received another `500 PRES` afterward, and retained exactly the
+same historical claim after the second transfer. Both holders pulled their own
+ETH; the tokens were then returned and the participant's allowlist flag removed.
+
+| Step | Blockscout evidence |
+| --- | --- |
+| Allowlist demo participant | [`0x4156…281f`](https://eth-sepolia.blockscout.com/tx/0x4156d6dd7d2cc1a1e22deca1ad211276b09e628d183bb229f47e3f8549fc281f) |
+| Transfer `1,000 PRES` before deposit | [`0xebd0…d318`](https://eth-sepolia.blockscout.com/tx/0xebd0f0763103c68877e752676ebb0328361d7aaf6594b3aa31175bca83c9d318) |
+| Deposit `0.001 ETH` yield | [`0xa1d7…0016`](https://eth-sepolia.blockscout.com/tx/0xa1d7c8a20666a5d457fa895d9337c6c298160a4b7d89208251bbe68ae5310016) |
+| Transfer another `500 PRES` after deposit | [`0x39cd…1f99`](https://eth-sepolia.blockscout.com/tx/0x39cd2bc519fee16b6e207f04f8d4b9fd5c569cf8b42a15c7fc63f1c227131f99) |
+| Participant claims deposit-time entitlement | [`0x9fcd…fe51`](https://eth-sepolia.blockscout.com/tx/0x9fcd8423a16f5c29fa1e4a08a4c96ff9e431147313d602affcf7d42c6a67fe51) |
+| Deployer claims remaining entitlement | [`0x1090…eb4f`](https://eth-sepolia.blockscout.com/tx/0x10904952edbc98059de4ea4515ee1a10adde36756cfc449f32014964623ceb4f) |
+| Return all `1,500 PRES` | [`0x9140…7f59`](https://eth-sepolia.blockscout.com/tx/0x91406e2338e8589662d14279ead59a690e6eadc15047383544f67e10f08a7f59) |
+| Remove demo allowlist flag | [`0x65a0…6432`](https://eth-sepolia.blockscout.com/tx/0x65a066c7f19cf50eb0e0778a55d31cd9533b2867cf6a5dc7d8cff49139976432) |
+
+Final public state: `totalYieldDeposited = 0.001 ETH`,
+`totalYieldClaimed = 0.000999999999999998 ETH`, and `2 wei` remain as documented
+integer-division dust. The deployer again holds all `10,000 PRES`; the participant
+holds zero tokens and is no longer allowlisted. The complete ten-transaction record,
+including gas funding and cleanup, is committed in
+[`PropertyToken.demo.json`](deployments/sepolia/PropertyToken.demo.json). It contains
+only public addresses and hashes—no administrator or participant private key.
+
+![PropertyToken dashboard showing the Sepolia valuation, oracle readout, direct allowlisted transfer form, and explicit demo boundaries](docs/assets/rwa-dashboard.png)
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Wallet["Allowed wallet"] -->|direct ERC-20 transfer| Token["PropertyToken on Sepolia"]
+    Distributor["Dividend distributor role"] -->|depositYield: ETH| Token
+    Token -->|claimYield: pull payment| Wallet
+    Dashboard["Next.js dashboard"] <-->|viem / wagmi reads and writes| Token
+    Oracle["Chainlink ETH / USD"] -->|display conversion only| Token
+    Operator["Allowlist and valuation roles"] -->|demo flags and metadata| Token
+```
+
+## Individual contribution
+
+I designed and implemented the Solidity contract architecture, the magnified
+dividend-per-share and transfer-correction mechanism, the 14-test Hardhat suite,
+coverage and generated-ABI controls, Sepolia deployment and exact-match verification
+tooling, the bilingual Next.js dashboard, and the evidence-oriented risk documentation.
+OpenZeppelin, Chainlink interfaces, Hardhat, viem, wagmi, React, and Next.js are used
+as credited third-party dependencies rather than presented as original work.
+
+## Verification and reproducibility
+
+```bash
+npm ci
+npm run compile
+npm run export:verification
+npm test
+npm run test:frontend
+npm run coverage
+npm run lint
+npm run typecheck
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+CI repeats the generated contract-file drift check after rebuilding the ABI and
+verification input. The committed Sepolia manifests and transaction URLs make the
+deployed state independently reviewable without access to any private key.
+
+---
+
+## 中文技术说明
+
+一个可编译、可测试、可部署到 Sepolia 的房地产 RWA 技术演示。仓库同时包含 Solidity 合约、Hardhat 工程、Next.js 前端和围绕分红、权限、链上允许名单、Oracle 与安全边界的自动化测试。
 
 > [!CAUTION]
 > 本项目仅用于 Sepolia 技术演示。它没有经过安全审计，不代表任何真实物业、SPV 权益或可执行的法律权利，不是证券发行、募资、招揽或投资建议。Sepolia ETH 没有现实价值。
@@ -22,12 +141,22 @@
 
 公开前端固定入口为 [rwa-token-project.vercel.app](https://rwa-token-project.vercel.app)，Vercel Production 环境跟随 `main`。每次发布都必须核对 Vercel Deployment 的 Source commit 与对应的 `main` 合并提交一致；Preview URL 只作为合并前验证证据。前端默认连接上述 Sepolia 部署，也可用 `NEXT_PUBLIC_PROPERTY_TOKEN_ADDRESS` 覆盖；钱包不在 Sepolia 或地址无效时会禁用链上写操作。
 
+## 公开 Sepolia 分红闭环
+
+2026-07-20 已完成一次受控的 `allowlist → transfer → depositYield → transfer → claim`
+演示。`0.001` Sepolia ETH 分红由存入时持有 `1,000 PRES` 的演示地址和部署者分别
+领取；分红后新增转入的 `500 PRES` 没有追溯获得旧分红，证明转账修正按预期工作。
+随后全部 `1,500 PRES` 已归还，演示地址的链上允许标记已移除。完整交易链接、金额、
+最终状态和 `2 wei` 舍入余量见
+[`deployments/sepolia/PropertyToken.demo.json`](deployments/sepolia/PropertyToken.demo.json)，
+文件只包含公开地址和交易哈希，不包含任何私钥。
+
 ## 功能与边界
 
 `PropertyToken` 是一个固定供应、不可升级的 ERC-20 演示合约：
 
 - 部署时一次性向 treasury 铸造 `10,000 PRES`（18 位小数），之后没有增发、销毁或升级入口。
-- 只有白名单地址之间可以转账；KYC/AML 在链下完成，链上只保存钱包是否获准的映射。
+- 只有链上允许名单中的地址之间可以转账；当前演示没有执行真实 KYC/AML，部署者只为技术流程手动设置 `address => allowed` 标记。
 - 获授权的分红分发者存入 ETH，持有人自行领取，不遍历持有人列表。
 - 获授权的估值角色登记人工物业估值、估值生效时间和报告哈希。
 - Chainlink ETH/USD 只用于把“可领取 ETH”换算成只读的美元展示值，不生成物业估值，也不改变 ETH 分红权益。
@@ -121,13 +250,13 @@ npm audit
 ```
 
 - `compile` 重新生成 Solidity ABI 与 bytecode artifact。
-- `test` 包含 O(1) 分红、转账修正、权限、KYC、重入、舍入、gas scaling、暂停、估值和 Oracle staleness 场景；gas scaling 是测试断言，不是对任意网络 gas 价格的承诺。
+- `test` 包含 O(1) 分红、转账修正、权限、链上允许名单、重入、舍入、gas scaling、暂停、估值和 Oracle staleness 场景；gas scaling 是测试断言，不是对任意网络 gas 价格的承诺。
 - `check:sepolia` 从已提交 manifest 核验部署/初始化交易、runtime bytecode、供应、管理员、角色、Oracle、估值与 Sourcify exact match；需要 `SEPOLIA_RPC_URL`。
 - `coverage` 报告测试覆盖路径；高覆盖率不等于安全审计。
 - `lint`、`typecheck` 和 `build` 分别检查静态规则、完整仓库 TypeScript 类型与生产构建。`next build` 使用 `tsconfig.next.json`，只检查可部署前端；Hardhat 测试和部署脚本仍由完整 `typecheck` 在 `compile` 生成 artifacts 后独立检查，因此 Vercel 不依赖未提交的本地 Hardhat artifacts。
 - `npm audit` 检查 npm 已知漏洞数据库。它不分析 Solidity、协议经济模型、链下法律安排或尚未公开的漏洞，也不能替代人工依赖审查与合约审计。
 
-2026-07-18 对当前 lockfile 的复核结果是：`npm audit --omit=dev` 为 **0**；完整 `npm audit` 为 **14 个（7 low、7 high）**。高等级告警来自开发期 Hardhat 工具链中的 `hardhat -> adm-zip` 和 `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic`，不进入 Next.js 生产依赖或浏览器 bundle。当前最新 Hardhat 仍依赖受影响的 `adm-zip` 范围，不能通过盲目升级或隐藏完整审计结果来宣称已经修复；仓库在 [`SECURITY.md`](SECURITY.md) 中记录临时控制、上游状态和复核要求，并用 `npm audit --omit=dev` 作为生产依赖的硬性 CI 门。告警会随 advisory 数据库和 lockfile 变化；发布证据仍应保存当次命令输出、lockfile 和 commit SHA，不能因为 `next build` 成功就忽略 lint、测试或 audit 失败。
+2026-07-20 对当前 lockfile 的复核结果是：`npm audit --omit=dev` 为 **0**；完整 `npm audit` 为 **8 个 low、0 个 high**，这八个传递条目都源自 `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic` 的同一条、暂时没有修复版本的 advisory，且不进入 Next.js 生产依赖或浏览器 bundle。此前 `hardhat -> adm-zip` 的 high finding 已通过 npm `overrides` 锁定到修复版 0.6.0，并由完整的编译、验证导出、测试和构建流程检查兼容性。仓库在 [`SECURITY.md`](SECURITY.md) 中记录临时控制和复核要求，并用 `npm audit --omit=dev` 作为生产依赖的硬性 CI 门。告警会随 advisory 数据库和 lockfile 变化；发布证据仍应保存当次命令输出、lockfile 和 commit SHA，不能因为 `next build` 成功就忽略 lint、测试或 audit 失败。
 
 ## O(1) magnified dividend-per-share
 
@@ -163,7 +292,7 @@ Solidity 整数除法向下取整，极小分红可能形成不可分配的 wei 
 
 这只保护合约内的领取记账，不保证接收钱包安全，也不代表链下银行现金流已经到账。
 
-## 权限、KYC 与暂停
+## 权限、链上允许名单与暂停
 
 | 角色 | 合约权限 |
 | --- | --- |
@@ -174,7 +303,7 @@ Solidity 整数除法向下取整，极小分红可能形成不可分配的 wei 
 | `ORACLE_MANAGER_ROLE` | 更换 ETH/USD feed 与最大允许陈旧时间 |
 | `PAUSER_ROLE` | 暂停或恢复代币转账和新的 ETH 分红存入；不阻断合规地址领取已累积分红 |
 
-KYC/AML 不在 Solidity 中完成。合规运营方在线下核验身份、制裁名单、投资者资格和钱包归属后，由 `COMPLIANCE_ROLE` 把结果映射为 `address => allowed`。链上白名单：
+KYC/AML 不在 Solidity 中完成，当前 Sepolia 演示也没有执行这些流程。它只展示 `COMPLIANCE_ROLE` 如何手动写入 `address => allowed`。真实受监管系统若要使用这种接口，必须先在本仓库之外建立并审计身份、制裁名单、投资者资格和钱包归属流程。链上允许名单本身：
 
 - 不保存姓名或证件，也无法证明操作钱包的人仍是原受审查人；
 - 不能替代持续监控、到期复核、制裁筛查或司法辖区要求；
@@ -250,9 +379,9 @@ npm run verify:sepolia -- \
 4. 用真实 Etherscan、Sourcify 和部署交易 URL 替换 README 顶部对应的 `<!-- DEPLOYMENT_* -->` 项；
 5. 记录 commit SHA、deployer、初始角色持有人、RPC chain ID、部署时间和验证结果。
 
-源码验证只能证明部署 bytecode 与某份源码/配置匹配，不能证明合约安全、法律结构有效或输入的估值与 KYC 数据真实。
+源码验证只能证明部署 bytecode 与某份源码/配置匹配，不能证明合约安全、法律结构有效或输入的估值与允许名单数据真实。
 
-## 现实世界运营模型
+## 假设的现实世界运营模型（本仓库未实现）
 
 本合约只实现链上记账。若要代表真实房地产，至少需要独立、可执行且经过法律审查的链下结构：
 

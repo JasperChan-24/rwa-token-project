@@ -18,9 +18,13 @@
     "preexport:verification": "hardhat build --build-profile production",
     "export:verification": "node scripts/export-verification-input.mjs",
     "test": "hardhat test",
+    "test:frontend": "tsx --test frontend-tests/**/*.test.ts",
+    "test:e2e": "playwright test",
     "coverage": "hardhat test --coverage",
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia --build-profile production",
     "check:sepolia": "tsx scripts/check-deployment.ts",
+    "demo:sepolia": "tsx scripts/demo-yield-cycle.ts",
+    "check:demo": "tsx scripts/check-yield-demo.ts",
     "verify:deployment": "hardhat run scripts/verify-deployment.ts --network sepolia --build-profile production",
     "verify:sepolia": "hardhat verify --network sepolia --build-profile production"
   },
@@ -39,6 +43,7 @@
     "@nomicfoundation/hardhat-verify": "3.0.21",
     "@nomicfoundation/hardhat-viem": "3.0.9",
     "@nomicfoundation/hardhat-viem-assertions": "3.1.2",
+    "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "4.3.2",
     "@types/node": "22.19.15",
     "@types/react": "19.2.17",
@@ -52,6 +57,7 @@
     "typescript": "5.9.3"
   },
   "overrides": {
+    "adm-zip": "0.6.0",
     "flatted": "3.4.2",
     "picomatch@4.0.3": "4.0.5",
     "minimatch@3.1.5": {
