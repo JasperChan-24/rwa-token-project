@@ -1,34 +1,39 @@
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 const buildInfoDirectory = resolve('artifacts/build-info')
-const entries = (await readdir(buildInfoDirectory))
-  .filter((entry) => entry.endsWith('.json') && !entry.endsWith('.output.json'))
-  .sort()
+const artifactPath = resolve(
+  'artifacts/contracts/PropertyToken.sol/PropertyToken.json',
+)
+const artifact = JSON.parse(await readFile(artifactPath, 'utf8'))
+const buildInfoId = artifact.buildInfoId
 
-let standardInput
-for (const entry of entries) {
-  const buildInfo = JSON.parse(
-    await readFile(resolve(buildInfoDirectory, entry), 'utf8'),
+if (typeof buildInfoId !== 'string' || buildInfoId.length === 0) {
+  throw new Error(
+    `Hardhat artifact ${artifactPath} does not identify its build info. Run the production Hardhat build first.`,
   )
-  const input = buildInfo.input
-  if (
-    input?.sources?.['project/contracts/PropertyToken.sol'] &&
-    input.settings?.optimizer?.enabled === true &&
-    input.settings?.optimizer?.runs === 200
-  ) {
-    standardInput = input
-    break
-  }
 }
 
-if (!standardInput) {
+const buildInfoPath = resolve(buildInfoDirectory, `${buildInfoId}.json`)
+const buildInfo = JSON.parse(await readFile(buildInfoPath, 'utf8'))
+if (buildInfo.id !== buildInfoId) {
   throw new Error(
-    'No production PropertyToken standard JSON input found. Run the production Hardhat build first.',
+    `Build-info ID mismatch: artifact references ${buildInfoId}, file contains ${buildInfo.id ?? 'no id'}.`,
+  )
+}
+
+const standardInput = buildInfo.input
+if (
+  !standardInput?.sources?.['project/contracts/PropertyToken.sol'] ||
+  standardInput.settings?.optimizer?.enabled !== true ||
+  standardInput.settings?.optimizer?.runs !== 200
+) {
+  throw new Error(
+    `Artifact build info ${buildInfoId} is not the expected optimized PropertyToken production build.`,
   )
 }
 
 await mkdir(resolve('verification'), { recursive: true })
 const outputPath = resolve('verification/PropertyToken.standard-input.json')
 await writeFile(outputPath, `${JSON.stringify(standardInput, null, 2)}\n`, 'utf8')
-console.log(`Exported ${outputPath}`)
+console.log(`Exported ${outputPath} from ${buildInfoId}`)

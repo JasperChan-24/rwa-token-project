@@ -13,18 +13,24 @@ Every release must pass the following checks from a clean lockfile install:
 ```bash
 npm ci
 npm run compile
+npm run export:verification
+git diff --exit-code -- abi/PropertyToken.json src/contracts/generated/propertyTokenAbi.ts verification/PropertyToken.standard-input.json
 npm test
+npm run test:frontend
+npm run coverage
 npm run lint
 npm run typecheck
 npm run build
+npx playwright install chromium
+npm run test:e2e
 npm audit --omit=dev
 ```
 
-Hardhat compiler and test commands run sequentially because their shared compiler cache uses a process mutex. Deployment and verification secrets are never available to pull-request CI. Etherscan verification uses a read-only RPC connection and does not require the deployment private key.
+Hardhat compiler and test commands run sequentially because their shared compiler cache uses a process mutex. Deployment and verification secrets are never available to pull-request CI. Etherscan verification uses a read-only RPC connection and does not require the deployment private key. Repository-level controls include private vulnerability reporting, dependency alerts and automated security updates, secret scanning, and push protection.
 
 ## Known development-tool advisories
 
-As of 2026-07-18, `npm audit --omit=dev` reports zero production vulnerabilities. The full development tree reports 14 advisories (7 low and 7 high):
+As of 2026-07-20, `npm audit --omit=dev` reports zero production vulnerabilities. The full development tree reports 14 advisories (7 low and 7 high):
 
 - [`GHSA-xcpc-8h2w-3j85`](https://github.com/advisories/GHSA-xcpc-8h2w-3j85) through `hardhat -> adm-zip`. The current Hardhat release line still declares `adm-zip ^0.4.16`; npm reports no compatible fix through Hardhat.
 - [`GHSA-848j-6mx2-7j84`](https://github.com/advisories/GHSA-848j-6mx2-7j84) through `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic`.
