@@ -1,6 +1,7 @@
 # PropertyToken — Auditable RWA Dividend Demo
 
 [![CI](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/ci.yml/badge.svg)](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/ci.yml)
+[![Contract security](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/contract-security.yml/badge.svg)](https://github.com/JasperChan-24/rwa-token-project/actions/workflows/contract-security.yml)
 [![Solidity coverage](https://img.shields.io/badge/Solidity%20coverage-94.94%25-brightgreen)](#verification-and-reproducibility)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Network: Sepolia](https://img.shields.io/badge/network-Sepolia-6f4cff)](https://sepolia.etherscan.io/address/0xCac265066d612b6FE1E2Ff323bEDa97879f71aC3)
@@ -15,10 +16,14 @@ dashboard.
 progressively more expensive and eventually impractical. It also risks assigning
 past yield to wallets that buy tokens only after a distribution.
 
-**Contribution.** This project records a cumulative dividend-per-share value and
-updates signed corrections on every transfer. Deposits, entitlement reads, and
-claims therefore use a fixed amount of contract work with respect to holder count,
-while historical yield remains with the wallet that held the tokens at deposit time.
+**Contribution.** The dividend core adapts the established magnified-dividend and
+signed-correction pattern used by Roger Wu's
+[ERC-1726 reference implementation](https://github.com/Roger-Wu/erc1726-dividend-paying-token/blob/4f7c1fa40b94a62cbd93109d9b94b73fea17f074/contracts/DividendPayingToken.sol),
+which in turn credits PoWH3D as earlier prior art. My work focuses on the Solidity
+0.8/OpenZeppelin 5 architecture, carry-forward remainder accounting, permission and
+pause boundaries, transfer and claim edge cases, oracle and valuation integration,
+testing, deployment, exact-match verification, and evidence-oriented documentation—not
+invention of the underlying dividend-per-share algorithm.
 
 > [!IMPORTANT]
 > This is a technical testnet demo, not a tokenized-property offering. The current
@@ -43,7 +48,7 @@ while historical yield remains with the wallet that held the tokens at deposit t
 | Source verification | Etherscan **Exact Match** and Sourcify creation/runtime **exact_match** |
 | Public yield lifecycle | Allowlist → transfer → `depositYield` → post-deposit transfer → two pull claims → cleanup, with every transaction linked below |
 | Live system | Next.js dashboard on Vercel reading the verified Sepolia deployment |
-| Reproducibility | Locked dependencies, generated ABI drift check, production build, frontend copy tests, Playwright E2E, and CI |
+| Reproducibility | Locked dependencies, generated ABI drift check, production build, frontend copy tests, Playwright E2E, Foundry fuzz/invariant campaigns, gas snapshots, Slither, and CI |
 
 ## Public Sepolia yield lifecycle
 
@@ -88,20 +93,35 @@ flowchart LR
 
 ## Individual contribution
 
-I designed and implemented the Solidity contract architecture, the magnified
-dividend-per-share and transfer-correction mechanism, the 14-test Hardhat suite,
-coverage and generated-ABI controls, Sepolia deployment and exact-match verification
-tooling, the bilingual Next.js dashboard, and the evidence-oriented risk documentation.
-OpenZeppelin, Chainlink interfaces, Hardhat, viem, wagmi, React, and Next.js are used
-as credited third-party dependencies rather than presented as original work.
+I adapted the established magnified-dividend-per-share and signed
+transfer-correction pattern rather than inventing it. My individual contribution is
+the RWA-demo architecture and its boundary handling, carry-forward remainder
+conservation, security controls, deterministic and stateful test strategy, deployment
+and verification pipeline, bilingual dashboard, and public evidence package. The
+pinned upstream source and ISC notice are recorded in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). OpenZeppelin, Chainlink
+interfaces, Hardhat, Foundry, Slither, viem, wagmi, React, and Next.js are credited
+dependencies rather than presented as original work.
 
 ## Verification and reproducibility
 
+The full assurance suite requires Node.js `>=22.13.0`, Foundry `v1.7.1`, and
+Python `3.12`; the workflows pin those versions. Use an isolated Python
+environment for the pinned Slither toolchain.
+
 ```bash
+git submodule update --init --recursive
 npm ci
+python3.12 -m venv .venv-security
+source .venv-security/bin/activate
+python -m pip install --requirement requirements-security.txt
 npm run compile
 npm run export:verification
 npm test
+npm run lint:foundry
+npm run test:foundry
+npm run gas:check
+npm run slither
 npm run test:frontend
 npm run coverage
 npm run lint
@@ -112,8 +132,30 @@ npm run test:e2e
 ```
 
 CI repeats the generated contract-file drift check after rebuilding the ABI and
-verification input. The committed Sepolia manifests and transaction URLs make the
-deployed state independently reviewable without access to any private key.
+verification input. A separate contract-security workflow runs pinned Foundry fuzz
+and invariant campaigns, verifies committed gas snapshots, reports optimized bytecode
+size, and runs Slither against production contract code through the Foundry compiler
+path. These tools increase assurance but are not an independent security audit. The
+committed Sepolia manifests and transaction URLs make the deployed state independently
+reviewable without access to any private key.
+
+### Contract assurance snapshot
+
+The committed Foundry profile fixes Solidity `0.8.28`, Cancun, optimizer settings,
+and Foundry `v1.7.1` in CI. These are regression measurements under that configuration,
+not estimates of a user's network fee.
+
+| Evidence | Current result |
+| --- | --- |
+| Property fuzz tests | 3 properties × 1,024 runs |
+| Stateful invariant campaign | 256 runs × 64 calls = 16,384 calls, 0 reverts across deposit, transfer, claim, allowlist, and pause actions |
+| Deposit scaling | First `depositYield` is 99,757 gas at 1, 8, 32, and 128 holders |
+| Core operation snapshot | First/subsequent deposit: 99,757 / 48,457 gas; pre-/post-dividend transfer: 65,755 / 105,555 gas; successful claim: 86,307 gas |
+| Size gate | Optimized runtime: 10,892 bytes; 13,684 bytes below the EIP-170 runtime limit |
+| Slither 0.11.5 | 0 high results; 4 lower-severity results reviewed in [`docs/SLITHER_BASELINE.md`](docs/SLITHER_BASELINE.md) |
+
+The complete versioned matrix is in
+[`test-foundry/gas/snapshots/PropertyTokenGas.json`](test-foundry/gas/snapshots/PropertyTokenGas.json).
 
 ---
 
@@ -168,12 +210,18 @@ deployed state independently reviewable without access to any private key.
 
 - Solidity + OpenZeppelin Contracts：ERC-20、角色权限、暂停、重入保护和延迟管理员规则。
 - Hardhat 3 + viem + Node.js test runner：编译、测试、覆盖率、Sepolia 部署和源码验证。
+- Foundry + forge-std：fuzz、状态机 invariant、gas snapshot 与合约大小回归门。
+- Slither：通过 Foundry 编译路径扫描生产 Solidity；静态分析不等同于独立审计。
 - Chainlink `AggregatorV3Interface`：读取 Sepolia ETH/USD feed，并检查价格有效性与更新时间。
 - Next.js 16 + React 19 + TypeScript + wagmi + viem：前端与钱包交互。
 
 ```text
 contracts/PropertyToken.sol          核心 ERC-20、白名单、分红、估值和 Oracle 逻辑
 test/PropertyToken.ts                合约行为、安全性、舍入与 gas scaling 测试
+test-foundry/                        Foundry fuzz、invariant handler 与 gas 回归测试
+foundry.toml                         固定编译设置与 CI fuzz/invariant 参数
+test-foundry/gas/snapshots/          版本化 gas 基线
+THIRD_PARTY_NOTICES.md               算法先例、固定来源与上游许可证声明
 scripts/deploy.ts                    Sepolia 部署与演示初始化
 hardhat.config.ts                    Solidity、网络、验证和测试配置
 src/contracts/propertyToken.ts       前端使用的部署地址与生成 ABI 入口
@@ -195,9 +243,11 @@ artifacts/contracts/PropertyToken.sol/PropertyToken.json
 
 ## 本地运行
 
-要求 Node.js `>=22.13.0`。在本目录执行：
+基础开发要求 Node.js `>=22.13.0`。完整安全检查另要求 Foundry `v1.7.1` 与
+Python `3.12`；CI 已固定这些版本，Slither 依赖应安装到独立虚拟环境。在本目录执行：
 
 ```bash
+git submodule update --init --recursive
 npm ci
 npm run compile
 npm test
@@ -241,6 +291,10 @@ export NEXT_PUBLIC_PROPERTY_TOKEN_ADDRESS='0xYourVerifiedSepoliaContract'
 ```bash
 npm run compile
 npm test
+npm run lint:foundry
+npm run test:foundry
+npm run gas:check
+npm run slither
 npm run check:sepolia
 npm run coverage
 npm run lint
@@ -251,6 +305,10 @@ npm audit
 
 - `compile` 重新生成 Solidity ABI 与 bytecode artifact。
 - `test` 包含 O(1) 分红、转账修正、权限、链上允许名单、重入、舍入、gas scaling、暂停、估值和 Oracle staleness 场景；gas scaling 是测试断言，不是对任意网络 gas 价格的承诺。
+- `lint:foundry` 只格式化检查并 lint 新增测试目录，避免为工具格式化而改动已经 exact-match 部署的生产源码。
+- `test:foundry` 运行随机输入与状态机调用序列，检查余额、领取、舍入和资金守恒 invariant；随机测试通过不代表不存在未建模路径。
+- `gas:check` 将关键操作与已提交 snapshot 严格比较，并单独检查持有人数量增长不会线性抬高 `depositYield` gas。
+- `slither` 固定使用 Foundry 编译生产合约并对 high findings 失败；当前非 high 结果的逐项判断记录在 [`docs/SLITHER_BASELINE.md`](docs/SLITHER_BASELINE.md)。静态分析仍可能漏报或误报，也不能替代人工审计。
 - `check:sepolia` 从已提交 manifest 核验部署/初始化交易、runtime bytecode、供应、管理员、角色、Oracle、估值与 Sourcify exact match；需要 `SEPOLIA_RPC_URL`。
 - `coverage` 报告测试覆盖路径；高覆盖率不等于安全审计。
 - `lint`、`typecheck` 和 `build` 分别检查静态规则、完整仓库 TypeScript 类型与生产构建。`next build` 使用 `tsconfig.next.json`，只检查可部署前端；Hardhat 测试和部署脚本仍由完整 `typecheck` 在 `compile` 生成 artifacts 后独立检查，因此 Vercel 不依赖未提交的本地 Hardhat artifacts。
@@ -259,6 +317,22 @@ npm audit
 2026-07-20 对当前 lockfile 的复核结果是：`npm audit --omit=dev` 为 **0**；完整 `npm audit` 为 **8 个 low、0 个 high**，这八个传递条目都源自 `@nomicfoundation/hardhat-verify -> @ethersproject/* -> elliptic` 的同一条、暂时没有修复版本的 advisory，且不进入 Next.js 生产依赖或浏览器 bundle。此前 `hardhat -> adm-zip` 的 high finding 已通过 npm `overrides` 锁定到修复版 0.6.0，并由完整的编译、验证导出、测试和构建流程检查兼容性。仓库在 [`SECURITY.md`](SECURITY.md) 中记录临时控制和复核要求，并用 `npm audit --omit=dev` 作为生产依赖的硬性 CI 门。告警会随 advisory 数据库和 lockfile 变化；发布证据仍应保存当次命令输出、lockfile 和 commit SHA，不能因为 `next build` 成功就忽略 lint、测试或 audit 失败。
 
 ## O(1) magnified dividend-per-share
+
+### Prior art and attribution
+
+底层 magnified-dividend 与 signed-correction 结构并非本项目原创。本实现适配自
+Roger Wu 的 [`DividendPayingToken.sol` 固定提交](https://github.com/Roger-Wu/erc1726-dividend-paying-token/blob/4f7c1fa40b94a62cbd93109d9b94b73fea17f074/contracts/DividendPayingToken.sol)，
+该上游源码同时注明 PoWH3D 是更早先例。相同谱系包括 `2^128` 精度常量、累计
+每股分红、账户 signed correction、已领取记账以及转账时的正负修正。
+
+本项目的工作重点是把该模式适配到 Solidity 0.8.28、OpenZeppelin 5 统一
+`_update` hook，并加入余数跨次结转、固定供应、链上 allowlist、角色/暂停边界、
+安全领取、Oracle/估值、系统测试、gas 门、Sepolia 部署和 exact-match 验证。
+完整来源与 ISC 声明见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+
+当前已验证部署的 `PropertyToken.sol` 没有仅为补注释而修改：Solidity metadata
+包含所有源码哈希，即使空白变化也会改变 runtime metadata hash，破坏现有
+Sepolia exact match。未来重新部署的 vNext 应把同一归因直接写入 NatSpec。
 
 分红采用“累计每股分红”记账，而不是在存入时循环给每个地址写余额。设高精度常量为 `M`、当前累计每股值为 `D`：
 

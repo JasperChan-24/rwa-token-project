@@ -1,0 +1,17 @@
+{
+  "allowlist.add": "48529",
+  "allowlist.revoke": "26617",
+  "claim.success": "86307",
+  "deployment": "2883353",
+  "deposit.first": "99757",
+  "deposit.first.holders_1": "99757",
+  "deposit.first.holders_128": "99757",
+  "deposit.first.holders_32": "99757",
+  "deposit.first.holders_8": "99757",
+  "deposit.subsequent": "48457",
+  "oracle.update": "39416",
+  "runtime_bytecode_bytes": "10892",
+  "transfer.after_dividend": "105555",
+  "transfer.before_dividend": "65755",
+  "valuation.update": "93286"
+}
