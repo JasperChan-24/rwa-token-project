@@ -8,6 +8,22 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    groups:
+      tailwind:
+        patterns:
+          - tailwindcss
+          - "@tailwindcss/*"
+    ignore:
+      # TypeScript 7 is outside the peer range supported by the current
+      # eslint-config-next/typescript-eslint stack. Revisit as a dedicated
+      # compatibility upgrade after upstream support lands.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
+      # Keep Node.js ambient types aligned with the Node 22 CI/runtime target.
+      - dependency-name: "@types/node"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: /

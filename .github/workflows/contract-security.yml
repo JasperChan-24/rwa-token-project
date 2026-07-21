@@ -1,0 +1,93 @@
+name: Contract security
+
+on:
+  push:
+    branches:
+      - main
+      - "agent/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contract-security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  foundry:
+    name: Foundry fuzz, invariants and gas
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source and pinned test dependency
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Set up Foundry
+        uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        with:
+          version: v1.7.1
+
+      - name: Install locked Solidity dependencies
+        run: npm ci
+
+      - name: Check Foundry test formatting and lint
+        run: npm run lint:foundry
+
+      - name: Run Foundry fuzz and invariant campaigns
+        run: npm run test:foundry
+
+      - name: Enforce committed gas snapshots
+        run: npm run gas:check
+
+      - name: Report optimized contract sizes
+        env:
+          FOUNDRY_PROFILE: ci
+        run: forge build --sizes
+
+  slither:
+    name: Slither static analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source and pinned test dependency
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Set up Foundry compiler frontend
+        uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        with:
+          version: v1.7.1
+
+      - name: Install locked npm and pinned Python analyzer dependencies
+        run: |
+          npm ci
+          python -m pip install --requirement requirements-security.txt
+
+      # Slither 0.11.5 does not auto-detect Hardhat 3 through its pinned
+      # crytic-compile line, so force the audited Foundry compilation path.
+      - name: Run Slither against production contract code
+        run: npm run slither

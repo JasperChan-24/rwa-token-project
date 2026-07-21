@@ -21,6 +21,12 @@
 /cache
 /typechain-types
 
+# foundry
+/out-foundry
+/cache-foundry
+/broadcast
+/.venv-security/
+
 # next.js
 /.next/
 /out/
