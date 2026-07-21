@@ -19,7 +19,7 @@
     "export:verification": "node scripts/export-verification-input.mjs",
     "test": "hardhat test",
     "test:foundry": "FOUNDRY_PROFILE=ci forge test --no-match-path 'test-foundry/gas/*.t.sol' -vvv",
-    "lint:foundry": "forge fmt --check test-foundry && forge lint test-foundry",
+    "lint:foundry": "forge fmt --check test-foundry && forge lint --no-cache test-foundry",
     "test:frontend": "tsx --test frontend-tests/**/*.test.ts",
     "test:e2e": "playwright test",
     "gas:snapshot": "FOUNDRY_PROFILE=ci forge test --match-path 'test-foundry/gas/*.t.sol' --isolate",
@@ -35,12 +35,12 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.6.1",
-    "@tanstack/react-query": "5.101.2",
+    "@tanstack/react-query": "5.101.3",
     "next": "16.2.10",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "viem": "2.55.0",
-    "wagmi": "3.7.1"
+    "viem": "2.55.4",
+    "wagmi": "3.7.3"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-network-helpers": "3.0.11",
@@ -50,13 +50,13 @@
     "@nomicfoundation/hardhat-viem-assertions": "3.1.2",
     "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/node": "22.19.15",
+    "@types/node": "22.20.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "dotenv": "17.3.1",
     "eslint": "9.39.5",
     "eslint-config-next": "16.2.10",
-    "hardhat": "3.10.0",
+    "hardhat": "3.11.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.1",
     "typescript": "5.9.3"
