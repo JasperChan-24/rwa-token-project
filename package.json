@@ -40,7 +40,7 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "viem": "2.55.0",
-    "wagmi": "3.7.1"
+    "wagmi": "3.7.3"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-network-helpers": "3.0.11",
