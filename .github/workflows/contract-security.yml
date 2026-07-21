@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - "agent/**"
   pull_request:
 
 permissions:
@@ -76,6 +75,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements-security.txt
 
       - name: Set up Foundry compiler frontend
         uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
