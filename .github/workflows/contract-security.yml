@@ -32,7 +32,7 @@ jobs:
           cache: npm
 
       - name: Set up Foundry
-        uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
         with:
           version: v1.7.1
 
@@ -78,7 +78,7 @@ jobs:
           cache-dependency-path: requirements-security.txt
 
       - name: Set up Foundry compiler frontend
-        uses: foundry-rs/foundry-toolchain@b00af27efadbc7b4ca8b82abbd903b17cc874d2a # v1
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1
         with:
           version: v1.7.1
 
